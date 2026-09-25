@@ -1,6 +1,6 @@
 # Africinnovate — Technology Career Aptitude Assessment
 
-Phase 1 MVP of the Africinnovate career-orientation platform: a 65-question, config-driven
+Phase 1 MVP of the Africinnovate career-orientation platform: a 73-question, config-driven
 aptitude assessment that scores candidates across 16 competencies and recommends one
 of 13 technology courses.
 
@@ -18,7 +18,7 @@ npm.cmd install
 # 2. Configure the environment
 copy .env.example .env        # SQLite by default (file:./prisma/dev.db)
 
-# 3. Create the schema and seed all content (65 questions per assessment version, courses, users, links)
+# 3. Create the schema and seed all content (73 questions per assessment version, courses, users, links)
 npx.cmd prisma db push
 npm.cmd run db:seed
 
@@ -42,14 +42,14 @@ npm.cmd dev
 | Admissions / HR | `admissions@africinnovate.com` | `Admissions123!` |
 | Instructor | `instructor@africinnovate.com` | `Instructor123!` |
 
-> The current seeded public link uses assessment version 1.1; older published versions remain available for historical attempt reproducibility.
+> The current seeded public link uses assessment version 1.2; older published versions remain available for historical attempt reproducibility. See [`docs/scoring-and-grading.md`](docs/scoring-and-grading.md) for how scores and recommendations are produced.
 
 ---
 
 ## Features
 
 ### Candidate flow
-- Public token link → intro/consent form → 65-question engine → instant report
+- Public token link → intro/consent form → 73-question engine → instant report
 - **7 question types:** multiple choice, multiple select, Likert, scenario (0–4),
   open-ended (rubric), visual (SVG stimulus), ordering
 - 9 sections across 5 scoring components (Cognitive, Simulation, Behaviour,
@@ -101,7 +101,7 @@ npm.cmd dev
 ```
 prisma/
   schema.prisma          # Data model (SQLite-compatible: strings, no enums/Json)
-  seed.ts                # 65 questions, 13 courses, 16 competencies, 3 users, settings
+  seed.ts                # 73 questions, 13 courses, 16 competencies, 3 users, settings
 src/
   app/
     page.tsx              # Landing
@@ -175,6 +175,7 @@ For PostgreSQL: set `provider = "postgresql"` in `prisma/schema.prisma`, run
 
 ## Documentation
 
+- [`docs/scoring-and-grading.md`](docs/scoring-and-grading.md) — **how scoring and grading works, in plain language** (start here)
 - [`docs/api.md`](docs/api.md) — endpoint reference
 - [`docs/database.md`](docs/database.md) — data model & scoring fields
 - [`docs/deployment.md`](docs/deployment.md) — SQLite → PostgreSQL, production hardening

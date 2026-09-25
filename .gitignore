@@ -25,6 +25,10 @@ npm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# never commit an .env backup - they contain real secrets
+.env.bak*
+.env.*.bak
+.env.backup*
 .env.example
 
 # typescript
@@ -42,3 +46,4 @@ build.log
 
 # documentation
 Africinnovate_Technology_Career_Aptitude_Assessment_PRD.md
+scoring-and-grading.md

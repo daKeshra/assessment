@@ -19,7 +19,7 @@ if (-not $up) { Write-Host "`nSERVER NEVER CAME UP"; exit 1 }
 # --- 1. public pages ---
 Check "landing page" ((Invoke-WebRequest -Uri "$base/" -UseBasicParsing).StatusCode -eq 200)
 $intro = Invoke-WebRequest -Uri "$base/a/tech-aptitude-1" -UseBasicParsing
-Check "intro page renders 65 questions" ($intro.StatusCode -eq 200 -and $intro.Content -match "65")
+Check "intro page renders a question count" ($intro.StatusCode -eq 200 -and $intro.Content -match "\b7[0-9] questions")
 Check "intro page shows consent" ($intro.Content -match "consent|Consent")
 
 # unique per run so re-runs don't collide with a previously submitted attempt
@@ -40,7 +40,7 @@ Check "resume returns same attempt" ($reg2.attemptToken -eq $token -and $reg2.re
 
 # --- 3. engine payload: no answer-key leakage ---
 $engine = Invoke-RestMethod -Uri "$base/api/attempts/$token"
-Check "engine payload has 65 questions" ($engine.questions.Count -eq 65) "got $($engine.questions.Count)"
+Check "engine payload has 73 questions" ($engine.questions.Count -eq 73) "got $($engine.questions.Count)"
 Check "engine payload has 9 sections" ($engine.sections.Count -eq 9)
 $engineJson = $engine | ConvertTo-Json -Depth 12
 Check "no isCorrect leaked" ($engineJson -notmatch '"isCorrect"')

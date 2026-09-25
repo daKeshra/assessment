@@ -289,10 +289,10 @@ export { seedSettings, seedCompetencies, seedCourses, seedUsers, db };
 export type { SeedQuestion, SeedSection, SeedOption };
 
 // ---------------------------------------------------------------------------
-// Assessment content - Version 1.0 (65 questions, PRD sections 9-17)
+// Assessment content - Version 1.2 (73 questions, PRD sections 9-17)
 // ---------------------------------------------------------------------------
 
-const SECTIONS: SeedSection[] = [
+export const SECTIONS: SeedSection[] = [
   // ---------------- SECTION A: Logical & Abstract Reasoning ----------------
   {
     code: "A",
@@ -405,7 +405,7 @@ const SECTIONS: SeedSection[] = [
           "Students who attended more than 80% of classes generally scored higher than students who attended less than 50%.",
         prompt: "Which conclusion is safest based on this statement?",
         difficulty: 1,
-        comps: [["NR", 1], ["ST", 2], ["PS", 1]],
+        comps: [["NR", 1], ["ST", 1], ["PS", 1], ["IN", 0.5]],
         options: [
           { text: "Attendance definitely causes higher scores" },
           { text: "Attendance and performance appear to be associated", correct: true },
@@ -504,7 +504,7 @@ const SECTIONS: SeedSection[] = [
         type: "MULTIPLE_CHOICE",
         prompt: "Which symbol comes next?   ▲  ●  ▲▲  ●  ▲▲▲  ●  ?",
         difficulty: 1,
-        comps: [["PR", 2], ["AD", 1]],
+        comps: [["PR", 2.5], ["AD", 0.5]],
         options: [{ text: "▲", correct: true }, { text: "●" }, { text: "▼" }, { text: "■" }],
       },
       {
@@ -512,7 +512,7 @@ const SECTIONS: SeedSection[] = [
         stimulus: "Target: AFRICINNOVATE-2024/AD",
         prompt: "Which line is an exact match to the target above?",
         difficulty: 1,
-        comps: [["AD", 2]],
+        comps: [["AD", 1]],
         options: [
           { text: "AFRICINNOVATE-2024/AD", correct: true },
           { text: "AFRICINNOVATE_2024/AD" },
@@ -523,17 +523,17 @@ const SECTIONS: SeedSection[] = [
       {
         type: "MULTIPLE_CHOICE",
         prompt:
-          "A list should start at 7 and add 3 each time: 7, 10, 13, 17, 20. Which number breaks the rule?",
+          "A list should start at 7 and add 3 each time: 7, 10, 13, 16, 20. Which number breaks the rule?",
         difficulty: 2,
-        comps: [["AD", 2], ["PR", 1]],
-        options: [{ text: "7" }, { text: "10" }, { text: "17", correct: true }, { text: "20" }],
+        comps: [["AD", 1], ["PR", 1.5], ["IN", 0.5]],
+        options: [{ text: "7" }, { text: "10" }, { text: "16" }, { text: "20", correct: true }],
       },
       {
         type: "MULTIPLE_CHOICE",
         stimulus: "Amaka - 08031234567\nTunde - 08031234568\nKelechi - 07012345678\nBola - 12345",
         prompt: "Every entry should be an 11-digit phone number. Which entry breaks the rule?",
         difficulty: 2,
-        comps: [["AD", 2]],
+        comps: [["AD", 1.5], ["AB", 0.5]],
         options: [
           { text: "Amaka - 08031234567" },
           { text: "Tunde - 08031234568" },
@@ -545,8 +545,8 @@ const SECTIONS: SeedSection[] = [
         type: "MULTIPLE_CHOICE",
         stimulus: "Receive three free entries every evening.",
         prompt: 'How many times does the letter "e" appear in the sentence above?',
-        difficulty: 3,
-        comps: [["AD", 3]],
+        difficulty: 1,
+        comps: [["AD", 1]],
         options: [{ text: "11" }, { text: "12" }, { text: "13", correct: true }, { text: "14" }],
       },
       {
@@ -554,7 +554,7 @@ const SECTIONS: SeedSection[] = [
         stimulus: "Invoice numbers: JMT-4471, JMT-4471, JMT-4417, JMT-4471",
         prompt: "Which invoice number is the outlier?",
         difficulty: 2,
-        comps: [["AD", 2], ["PR", 1]],
+        comps: [["AD", 1.5], ["PR", 1.5], ["IN", 0.5]],
         options: [
           { text: "JMT-4417", correct: true },
           { text: "JMT-4471 (first)" },
@@ -567,7 +567,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Study the rule: result = first digit x second digit - 1. Which value is wrong?   35 -> 14,  46 -> 23,  27 -> 12,  58 -> 39",
         difficulty: 3,
-        comps: [["AD", 2], ["LR", 2]],
+        comps: [["AD", 1], ["LR", 2], ["AB", 1]],
         options: [
           { text: "35 -> 14" },
           { text: "46 -> 23" },
@@ -579,7 +579,7 @@ const SECTIONS: SeedSection[] = [
         type: "MULTIPLE_CHOICE",
         prompt: "Which number does not belong?   6, 12, 24, 48, 50, 96",
         difficulty: 3,
-        comps: [["PR", 2], ["AD", 2]],
+        comps: [["PR", 2], ["AD", 1]],
         options: [{ text: "6" }, { text: "12" }, { text: "48" }, { text: "50", correct: true }, { text: "96" }],
       },
     ],
@@ -599,7 +599,7 @@ const SECTIONS: SeedSection[] = [
           "Student registers\n       |\nPayment verified\n       |\nConfirmation sent\n       |\nStudent record created\n       |\nTraining details sent",
         prompt: "Which step is most likely missing from this process?",
         difficulty: 2,
-        comps: [["ST", 2], ["PT", 2]],
+        comps: [["ST", 1], ["PT", 2], ["IN", 0.5]],
         options: [
           { text: "A path for what happens when payment is not verified", correct: true },
           { text: "Sending the training details a second time" },
@@ -613,7 +613,7 @@ const SECTIONS: SeedSection[] = [
           "Confirmation emails sometimes arrive 6 hours late because a staff member sends them manually between 9am and 5pm.",
         prompt: "Where is the bottleneck in this process?",
         difficulty: 2,
-        comps: [["PT", 2], ["ST", 1], ["PS", 1]],
+        comps: [["PT", 2], ["ST", 1], ["PS", 1], ["IN", 0.5]],
         options: [
           { text: "The manual confirmation step", correct: true },
           { text: "The number of students registering" },
@@ -652,7 +652,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Every morning, a staff member copies order details from emails into a spreadsheet. What is the best improvement?",
         difficulty: 2,
-        comps: [["ST", 2], ["PS", 2], ["PT", 1]],
+        comps: [["ST", 1], ["PS", 2], ["PT", 1], ["EX", 0.5]],
         options: [
           { text: "Have the order form submit straight into the system automatically", correct: true },
           { text: "Hire more staff so the copying happens faster" },
@@ -665,7 +665,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "In an enrolment process, when a payment fails the candidate never hears anything. Which addition makes the process most reliable?",
         difficulty: 2,
-        comps: [["ST", 2], ["DM", 2]],
+        comps: [["ST", 2], ["DM", 2], ["CM", 1], ["EM", 0.5]],
         options: [
           { text: "A failure notification with next steps and a retry option", correct: true },
           { text: "A longer registration form" },
@@ -692,12 +692,29 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "The company's SMS provider goes down while candidates are being notified by text. Which response keeps the process working best?",
         difficulty: 3,
-        comps: [["ST", 2], ["DM", 1], ["PS", 1]],
+        comps: [["ST", 1], ["DM", 1], ["PS", 1], ["EX", 0.5], ["IN", 0.5]],
         options: [
           { text: "Queue the messages and fall back to email until the provider recovers", correct: true },
           { text: "Stop the entire enrolment process until it is fixed" },
           { text: "Manually retype messages into the same broken provider" },
           { text: "Ignore the failure; candidates will find out eventually" },
+        ],
+      },
+      {
+        type: "MULTIPLE_CHOICE",
+        stimulus:
+          "Two reports disagree. Report A: 62% of registrants paid. Report B: 62% of registrants are female. A: 'payment rate' 62%. B: 'payment rate' 62%.",
+        prompt: "Before trusting either figure, what should be checked first?",
+        difficulty: 3,
+        comps: [["IN", 2], ["AD", 1], ["AB", 1]],
+        options: [
+          {
+            text: "Whether the two reports use the same definition of the denominator and the same group of people",
+            correct: true,
+          },
+          { text: "Whether both reports are printed in colour" },
+          { text: "Whether 62% is a round number" },
+          { text: "Whether the higher report should be published first" },
         ],
       },
     ],
@@ -714,7 +731,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which interface makes the primary action easier to identify?",
         difficulty: 2,
-        comps: [["VR", 2], ["EM", 1]],
+        comps: [["VR", 1.5], ["EM", 1.5]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
   <rect width="720" height="300" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="284" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -749,7 +766,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which course card is easier to scan quickly?",
         difficulty: 2,
-        comps: [["VR", 2], ["AD", 1]],
+        comps: [["VR", 1.5], ["AD", 1], ["CM", 0.5]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
   <rect width="720" height="300" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="284" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -787,7 +804,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which layout makes the document structure clearest?",
         difficulty: 2,
-        comps: [["VR", 2], ["AD", 1]],
+        comps: [["VR", 1.5], ["AD", 0.5], ["CR", 1]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
   <rect width="720" height="300" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="284" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -860,7 +877,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which is better for one-handed phone use?",
         difficulty: 2,
-        comps: [["VR", 2], ["EM", 1]],
+        comps: [["VR", 1.5], ["EM", 1.5]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
   <rect width="720" height="300" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="284" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -901,7 +918,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which form is less likely to lead to mistakes?",
         difficulty: 2,
-        comps: [["VR", 2], ["PT", 1]],
+        comps: [["VR", 1.5], ["PT", 1], ["EM", 1]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320">
   <rect width="720" height="320" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="304" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -939,7 +956,7 @@ const SECTIONS: SeedSection[] = [
         type: "VISUAL",
         prompt: "Which screen helps the user know what to do next?",
         difficulty: 1,
-        comps: [["VR", 2], ["CR", 1]],
+        comps: [["VR", 1.5], ["CR", 1.5]],
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 280">
   <rect width="720" height="280" fill="#ffffff"/>
   <rect x="8" y="8" width="344" height="264" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -1004,7 +1021,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "While reviewing a dataset you notice one week's sales figures are completely missing. What should you do first?",
         difficulty: 2,
-        comps: [["AD", 2], ["NR", 1], ["IN", 1]],
+        comps: [["AD", 1.5], ["NR", 1], ["IN", 1], ["EX", 0.5]],
         options: [
           {
             text: "Trace where the week went, confirm why it is missing, and record the decision before calculating anything",
@@ -1029,8 +1046,8 @@ const SECTIONS: SeedSection[] = [
             text: "Do not click anything; report it to the IT/help desk and log in through the official website yourself",
             score: 4,
           },
-          { text: "Reply to the email asking whether it is genuine", score: 1 },
-          { text: "Forward it to friends to see if they received it too", score: 2 },
+          { text: "Reply to the email asking whether it is genuine", score: 2 },
+          { text: "Forward it to friends to see if they received it too", score: 1 },
           { text: "Click the link and enter your details if the page looks official", score: 0 },
         ],
       },
@@ -1039,7 +1056,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "A company receives 300 job applications by email every month. Staff manually download CVs, extract names, update a spreadsheet, send confirmation emails and notify HR. How would you improve this process?",
         difficulty: 2,
-        comps: [["ST", 2], ["PT", 2], ["PS", 1]],
+        comps: [["ST", 1], ["PT", 2], ["PS", 1], ["IN", 1], ["CM", 0.5]],
         options: [
           {
             text: "Trigger on each new application email, extract the key details automatically, store them in one place, reply with an instant confirmation, and alert HR - with a person checking anything unclear",
@@ -1055,7 +1072,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Two senior stakeholders each want a different feature built first, and the team can only deliver one. What is the best approach?",
         difficulty: 2,
-        comps: [["DM", 2], ["CM", 2], ["ST", 1]],
+        comps: [["DM", 1.5], ["CM", 1.5], ["ST", 1], ["EM", 0.5]],
         options: [
           {
             text: "Get both to agree on the user problem and success measure, compare impact versus effort openly, then decide and explain the trade-off",
@@ -1071,7 +1088,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "An advertisement is getting plenty of clicks but almost no sign-ups. What should happen first?",
         difficulty: 2,
-        comps: [["IN", 2], ["PS", 2], ["DM", 1]],
+        comps: [["IN", 2], ["PS", 2], ["DM", 1], ["CR", 0.5], ["CM", 0.5]],
         options: [
           {
             text: "Check where people land after clicking and find where they drop off, then fix that step before spending more",
@@ -1087,7 +1104,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Engagement on a training business's social page has been dropping for two months. What is the most sensible first move?",
         difficulty: 2,
-        comps: [["IN", 2], ["DM", 1], ["CR", 1]],
+        comps: [["IN", 1.5], ["DM", 1], ["CR", 1.5], ["CM", 1], ["EM", 1], ["EX", 1]],
         options: [
           {
             text: "Review which posts worked and when, ask the audience what they want, and test a couple of new formats",
@@ -1103,7 +1120,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Many users abandon a registration form at step 3 of 5. What is the best response?",
         difficulty: 2,
-        comps: [["EM", 2], ["VR", 1], ["PS", 1]],
+        comps: [["EM", 1.5], ["VR", 1], ["PS", 1.5], ["CM", 1], ["IN", 1]],
         options: [
           {
             text: "Find out exactly what happens at step 3 (fields, errors, confusion), simplify it, and test the change with real users",
@@ -1119,7 +1136,7 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "Two companies need to share a record of deliveries that neither side can secretly change afterwards. Which approach fits best?",
         difficulty: 3,
-        comps: [["ST", 2], ["AB", 1], ["AD", 1]],
+        comps: [["ST", 1], ["AB", 1], ["AD", 1]],
         options: [
           {
             text: "Give both companies access to the same append-only ledger where every entry is verified and visible to both sides",
@@ -1135,9 +1152,57 @@ const SECTIONS: SeedSection[] = [
         prompt:
           "A community training centre is losing track of student payments and attendance. Describe, in your own words, how you would organise this from start to finish. No technical knowledge is required - think about what information you would keep, who would check it, and how problems would be caught early.",
         difficulty: 3,
-        comps: [["ST", 2], ["PS", 2], ["PT", 1]],
+        comps: [["ST", 1], ["PS", 1], ["PT", 1], ["CM", 1], ["EM", 1]],
         requiresManualScore: true,
         options: [],
+      },
+      {
+        type: "SCENARIO",
+        prompt:
+          "A customer says they do not understand a course refund policy and is upset. What is the best first response?",
+        difficulty: 2,
+        comps: [["CM", 2], ["EM", 1], ["PS", 0.5]],
+        options: [
+          {
+            text: "Listen to what they actually need, explain the policy in plain language, check they have understood, and agree the next step together",
+            score: 4,
+          },
+          { text: "Send the full policy as a link and ask them to read it again", score: 2 },
+          { text: "Repeat the policy word for word until they stop asking questions", score: 1 },
+          { text: "Tell them the policy is final and cannot be discussed", score: 0 },
+        ],
+      },
+      {
+        type: "SCENARIO",
+        prompt:
+          "A competitor has just launched exactly the same offer as yours, with the same price. What is the strongest response?",
+        difficulty: 3,
+        comps: [["CR", 2], ["DM", 1], ["EX", 1]],
+        options: [
+          {
+            text: "Come up with two genuinely different angles the competitor is not using, then test each one with a small audience before committing budget",
+            score: 4,
+          },
+          { text: "Lower the price below the competitor immediately", score: 2 },
+          { text: "Copy the competitor's wording and imagery exactly", score: 1 },
+          { text: "Ignore it; customers will always choose us anyway", score: 0 },
+        ],
+      },
+      {
+        type: "SCENARIO",
+        prompt:
+          "A training centre hears that evening students are struggling to register on their phones, but the complaints are informal and scattered. What should they do first?",
+        difficulty: 2,
+        comps: [["EM", 1.5], ["IN", 1.5], ["CM", 0.5], ["ST", 0.5]],
+        options: [
+          {
+            text: "Speak to the students who gave up, collect the specific steps and screens where they got stuck, and confirm the pattern before redesigning anything",
+            score: 4,
+          },
+          { text: "Rebuild the whole registration flow straight away before talking to anyone", score: 1 },
+          { text: "Assume evening students are less serious and publish a reminder notice", score: 1 },
+          { text: "Turn off online registration for evening students", score: 0 },
+        ],
       },
     ],
   },
@@ -1154,35 +1219,49 @@ const SECTIONS: SeedSection[] = [
         type: "LIKERT",
         prompt: "When a step in my plan keeps failing, I try a different approach before I give up.",
         difficulty: 1,
-        comps: [["PE", 1.5]],
+        comps: [["PE", 1.25], ["EX", 0.75]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "I often make a small change first just to see what happens.",
         difficulty: 1,
-        comps: [["EX", 1.5]],
+        comps: [["EX", 1.25], ["IN", 0.75]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "I want to understand why something works, not only copy what someone showed me.",
         difficulty: 1,
-        comps: [["EX", 1.2], ["PE", 0.8]],
+        comps: [["EX", 1], ["IN", 0.5], ["AB", 0.5]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "When instructions are unclear, I usually work it out by trying things.",
         difficulty: 1,
-        comps: [["EX", 1.2], ["IN", 1]],
+        comps: [["EX", 1], ["IN", 0.75], ["AB", 0.75]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "I can keep working on a problem even when I do not know the answer yet.",
         difficulty: 1,
-        comps: [["PE", 1.5], ["DM", 0.8]],
+        comps: [["PE", 1], ["DM", 0.5], ["PS", 0.5]],
+        options: likert(),
+      },
+      {
+        type: "LIKERT",
+        prompt: "When I do not understand something, I ask a specific question rather than staying stuck.",
+        difficulty: 1,
+        comps: [["CM", 1.25], ["EM", 0.5], ["IN", 0.75]],
+        options: likert(),
+      },
+      {
+        type: "LIKERT",
+        prompt: "If a solution works but I do not know why, I still try to find out the reason.",
+        difficulty: 1,
+        comps: [["EX", 1], ["IN", 0.75], ["AB", 0.5]],
         options: likert(),
       },
     ],
@@ -1201,10 +1280,10 @@ const SECTIONS: SeedSection[] = [
         difficulty: 1,
         comps: [],
         options: [
-          { text: "Find patterns in a large set of data", map: { data_analysis: 100, data_science: 90, digital_marketing: 40 } },
+          { text: "Find patterns in a large set of data", map: { data_analysis: 100, data_science: 90, digital_marketing: 40, blockchain_development: 35 } },
           { text: "Build a system that lets people do something online", map: { backend_development: 100, frontend_development: 65, blockchain_development: 55, mobile_development: 45 } },
-          { text: "Investigate unusual activity on a computer network", map: { cybersecurity: 100, backend_development: 40 } },
-          { text: "Design how an application looks and works", map: { ui_ux_design: 100, product_design: 85, frontend_development: 50 } },
+          { text: "Investigate unusual activity on a computer network", map: { cybersecurity: 100, backend_development: 40, ai_workflow_automation: 40 } },
+          { text: "Design how an application looks and works", map: { ui_ux_design: 100, product_design: 85, frontend_development: 50, mobile_development: 45 } },
         ],
       },
       {
@@ -1213,10 +1292,16 @@ const SECTIONS: SeedSection[] = [
         difficulty: 1,
         comps: [],
         options: [
-          { text: "Decide what a team should build next and in what order", map: { product_management: 100, product_design: 55 } },
-          { text: "Create posts and videos that grow an audience", map: { social_media_marketing: 100, digital_marketing: 80 } },
+          { text: "Decide what a team should build next and in what order", map: { product_management: 100, product_design: 55, blockchain_development: 35 } },
+          {
+            text: "Create posts and videos that grow an audience",
+            map: { social_media_marketing: 100, digital_marketing: 70, product_design: 45, frontend_development: 35 },
+          },
           { text: "Make sense of messy spreadsheets and find what matters", map: { data_analysis: 100, data_science: 80, ai_workflow_automation: 35 } },
-          { text: "Create visual designs and promotional graphics for a brand", map: { product_design: 100, digital_marketing: 75, ui_ux_design: 55 } },
+          {
+            text: "Create visual designs and promotional graphics for a brand",
+            map: { product_design: 100, digital_marketing: 75, ui_ux_design: 55, social_media_marketing: 55 },
+          },
         ],
       },
       {
@@ -1225,10 +1310,13 @@ const SECTIONS: SeedSection[] = [
         difficulty: 1,
         comps: [],
         options: [
-          { text: "Something that runs on people's phones", map: { mobile_development: 100, frontend_development: 60 } },
-          { text: "A website whose screens are genuinely easy to use", map: { ui_ux_design: 100, product_design: 70, frontend_development: 55 } },
-          { text: "Automatic reminders and reports that run without anyone chasing them", map: { ai_workflow_automation: 100, backend_development: 60, product_management: 40 } },
-          { text: "Protection that keeps a company's information out of the wrong hands", map: { cybersecurity: 100, backend_development: 45 } },
+          { text: "Something that runs on people's phones", map: { mobile_development: 100, frontend_development: 60, social_media_marketing: 50, digital_marketing: 45 } },
+          { text: "A website whose screens are genuinely easy to use", map: { ui_ux_design: 100, product_design: 70, frontend_development: 55, mobile_development: 45 } },
+          {
+            text: "Automatic reminders and reports that run without anyone chasing them",
+            map: { ai_workflow_automation: 100, backend_development: 60, product_management: 40, data_analysis: 40 },
+          },
+          { text: "Protection that keeps a company's information out of the wrong hands", map: { cybersecurity: 100, backend_development: 45, ai_workflow_automation: 35 } },
         ],
       },
       {
@@ -1237,10 +1325,22 @@ const SECTIONS: SeedSection[] = [
         difficulty: 1,
         comps: [],
         options: [
-          { text: "Explain a complicated idea so anyone can understand it", map: { product_management: 85, digital_marketing: 55, social_media_marketing: 55 } },
-          { text: "Watch people struggle with a tool and redesign it", map: { ui_ux_design: 100, product_design: 75, product_management: 60 } },
-          { text: "Connect two systems so information moves between them automatically", map: { ai_workflow_automation: 100, backend_development: 85, blockchain_development: 45 } },
-          { text: "Predict next month's sales from past numbers", map: { data_analysis: 100, data_science: 90 } },
+          { text: "Explain a complicated idea so anyone can understand it", map: { product_management: 85, digital_marketing: 55, social_media_marketing: 40, ui_ux_design: 50, frontend_development: 40, mobile_development: 40 } },
+          { text: "Watch people struggle with a tool and redesign it", map: { ui_ux_design: 100, product_design: 75, product_management: 60, mobile_development: 50, cybersecurity: 35 } },
+          { text: "Connect two systems so information moves between them automatically", map: { ai_workflow_automation: 100, backend_development: 85, blockchain_development: 45, cybersecurity: 40 } },
+          { text: "Predict next month's sales from past numbers", map: { data_analysis: 100, data_science: 90, digital_marketing: 40 } },
+        ],
+      },
+      {
+        type: "MULTIPLE_CHOICE",
+        prompt: "Which of these would make a working day feel worthwhile?",
+        difficulty: 1,
+        comps: [],
+        options: [
+          { text: "Getting more people to notice and trust a brand", map: { social_media_marketing: 100, digital_marketing: 80, cybersecurity: 30 } },
+          { text: "Making a slow, confusing process much faster for users", map: { ai_workflow_automation: 100, product_management: 55, backend_development: 45, frontend_development: 40, mobile_development: 40, blockchain_development: 45 } },
+          { text: "Recording that a shared record cannot be quietly altered", map: { blockchain_development: 100, backend_development: 45, cybersecurity: 45 } },
+          { text: "Turning a large pile of records into a clear answer", map: { data_analysis: 100, data_science: 85, ai_workflow_automation: 30 } },
         ],
       },
     ],
@@ -1258,35 +1358,42 @@ const SECTIONS: SeedSection[] = [
         type: "LIKERT",
         prompt: "After someone points out a weakness in my work, I usually apply it to the next attempt.",
         difficulty: 1,
-        comps: [["PE", 1.5]],
+        comps: [["PE", 1.25], ["EX", 0.5], ["EM", 0.25]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "A course exercise takes much longer than I expected. I am likely to keep going past the time I planned.",
         difficulty: 1,
-        comps: [["PE", 1.5]],
+        comps: [["PE", 1.25], ["PS", 0.5], ["DM", 0.25]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "When a topic is not clear, I look for extra explanations on my own.",
         difficulty: 1,
-        comps: [["EX", 1.5], ["IN", 0.8]],
+        comps: [["EX", 1.25], ["IN", 0.75], ["CM", 0.25]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "Learning something new matters to me even when nobody is checking.",
         difficulty: 1,
-        comps: [["PE", 1]],
+        comps: [["PE", 1], ["EX", 0.5]],
         options: likert(),
       },
       {
         type: "LIKERT",
         prompt: "When several tasks compete for my time, I decide what comes first by thinking about what matters most.",
         difficulty: 1,
-        comps: [["DM", 1.5]],
+        comps: [["DM", 1.25], ["PS", 0.5], ["CM", 0.25]],
+        options: likert(),
+      },
+      {
+        type: "LIKERT",
+        prompt: "When progress is slow, I keep a routine that helps me continue anyway.",
+        difficulty: 1,
+        comps: [["PE", 1], ["PS", 0.25], ["EX", 0.25]],
         options: likert(),
       },
     ],
@@ -1299,8 +1406,8 @@ const SECTIONS: SeedSection[] = [
 
 const PUBLIC_LINK_TOKEN = "tech-aptitude-1";
 // Content changes are versioned so historical candidate attempts remain
-// reproducible. Version 1.1 carries the Africinnovate branding correction.
-const SEED_VERSION_NUMBER = "1.1";
+// reproducible. Version 1.2 rebalances competency coverage across the question bank.
+const SEED_VERSION_NUMBER = "1.2";
 
 async function ensureAssessmentLink(versionId: string) {
   await db.assessment.upsert({
@@ -1333,7 +1440,7 @@ async function seedAssessmentVersion() {
       versionName: "Technology Aptitude Assessment",
       versionNumber: SEED_VERSION_NUMBER,
       status: "DRAFT",
-      notes: "Africinnovate-branded MVP release - 65 questions across 9 sections.",
+      notes: "Africinnovate balanced question bank - 73 questions across 9 sections.",
     },
   });
 
@@ -1431,9 +1538,13 @@ async function main() {
   console.log("Instructor login       : instructor@africinnovate.com / Instructor123!");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(() => db.$disconnect());
+// Only run when executed directly (`npm run db:seed` / `prisma db seed`).
+// Importing this module - e.g. from the coverage audit script - must not seed.
+if (require.main === module) {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(() => db.$disconnect());
+}

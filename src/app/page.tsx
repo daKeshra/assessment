@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 const STEPS = [
   { n: "1", title: "Tell us about yourself", text: "A short form - no technical knowledge required." },
-  { n: "2", title: "Take the assessment", text: "65 questions across reasoning, problem solving and interests." },
+  { n: "2", title: "Take the assessment", text: "Questions across reasoning, problem solving and interests." },
   { n: "3", title: "Get your technology profile", text: "Your strengths, primary pathway and alternatives worth exploring." },
   { n: "4", title: "Start learning", text: "A recommended starting point with a clear learning journey." },
 ];
@@ -20,6 +20,14 @@ export default async function LandingPage() {
       take: 13,
     }),
   ]);
+
+  // Read the count from the published version so the marketing copy can never
+  // drift from the seeded question bank again.
+  const questionCount = assessment?.version
+    ? await db.question.count({
+        where: { active: true, section: { assessmentVersionId: assessment.version.id } },
+      })
+    : 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -63,7 +71,7 @@ export default async function LandingPage() {
                 </span>
               )}
               <span className="text-sm text-brand-100">
-                65 questions &middot; about 45&ndash;60 minutes &middot; free
+                {questionCount} questions &middot; about 55&ndash;70 minutes &middot; free
               </span>
             </div>
           </div>

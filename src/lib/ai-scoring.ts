@@ -41,6 +41,24 @@ export function isAiScoringConfigured(): boolean {
   return Boolean(config().apiKey);
 }
 
+/**
+ * Endpoints already known to reject `response_format`, keyed by
+ * `endpoint|model`. Populated on first failure so later calls skip the
+ * doomed structured-output attempt.
+ */
+const structuredOutputUnsupported = new Set<string>();
+
+/**
+ * True when a 400 body indicates the provider does not implement JSON mode
+ * rather than indicating a genuinely bad request. Matched narrowly so real
+ * 400s (bad model, bad auth, oversized payload) are still surfaced.
+ */
+function isStructuredOutputUnsupported(body: string): boolean {
+  return /structured[-_ ]?outputs?|response_format|json_object|json_schema|does not support feature/i.test(
+    body,
+  );
+}
+
 function extractJson(content: string): unknown {
   const trimmed = content.trim();
   const withoutFence = trimmed
@@ -126,54 +144,81 @@ export async function suggestRubricScore(input: {
     "Rubric: 0 = no relevant response; 1 = minimal/off-topic; 2 = partial; 3 = solid/mostly complete; 4 = excellent/well structured.",
   ].join("\n\n");
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Number(process.env.AI_SCORING_TIMEOUT_MS ?? 30_000));
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-      signal: controller.signal,
-      cache: "no-store",
-    });
+  const timeoutMs = Number(process.env.AI_SCORING_TIMEOUT_MS ?? 30_000);
 
-    if (!response.ok) {
-      const body = (await response.text()).slice(0, 500);
+  const callProvider = async (useStructuredOutput: boolean) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0,
+          // Many OpenAI-compatible providers do not implement
+          // `response_format`. Omitting it makes the model fall back to
+          // prose, which `extractJson` still parses (it strips ``` fences).
+          ...(useStructuredOutput ? { response_format: { type: "json_object" } } : {}),
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+          ],
+        }),
+        signal: controller.signal,
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        return { ok: false as const, status: response.status, body: (await response.text()).slice(0, 500) };
+      }
+
+      const payload = (await response.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const content = payload.choices?.[0]?.message?.content;
+      if (typeof content !== "string") {
+        throw new AiScoringError("invalid_response", "AI provider returned no completion");
+      }
+      return { ok: true as const, content };
+    } catch (error) {
+      if (error instanceof AiScoringError) throw error;
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new AiScoringError("provider_error", "AI scoring timed out");
+      }
       throw new AiScoringError(
         "provider_error",
-        `AI provider returned ${response.status}${body ? `: ${body}` : ""}`,
+        error instanceof Error ? error.message : "Could not reach the AI provider",
       );
+    } finally {
+      clearTimeout(timeout);
     }
+  };
 
-    const payload = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const content = payload.choices?.[0]?.message?.content;
-    if (typeof content !== "string") {
-      throw new AiScoringError("invalid_response", "AI provider returned no completion");
+  // Prefer JSON mode, but transparently retry without it when the provider
+  // rejects the parameter, then remember that for subsequent calls so we do
+  // not pay for a guaranteed 400 on every request.
+  const cacheKey = `${endpoint}|${model}`;
+  const attempts: boolean[] = structuredOutputUnsupported.has(cacheKey) ? [false] : [true, false];
+
+  let lastFailure: { status: number; body: string } | null = null;
+  for (const useStructuredOutput of attempts) {
+    const result = await callProvider(useStructuredOutput);
+    if (result.ok) return parseResult(result.content, model);
+
+    lastFailure = result;
+    if (result.status === 400 && isStructuredOutputUnsupported(result.body)) {
+      structuredOutputUnsupported.add(cacheKey);
+      continue;
     }
-    return parseResult(content, model);
-  } catch (error) {
-    if (error instanceof AiScoringError) throw error;
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new AiScoringError("provider_error", "AI scoring timed out");
-    }
-    throw new AiScoringError(
-      "provider_error",
-      error instanceof Error ? error.message : "Could not reach the AI provider",
-    );
-  } finally {
-    clearTimeout(timeout);
+    break;
   }
+
+  throw new AiScoringError(
+    "provider_error",
+    `AI provider returned ${lastFailure?.status ?? "?"}${lastFailure?.body ? `: ${lastFailure.body}` : ""}`,
+  );
 }
