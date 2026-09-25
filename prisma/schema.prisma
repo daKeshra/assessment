@@ -1,0 +1,327 @@
+// Africinnovate Technology Career Aptitude Assessment - Prisma schema
+// Provider: sqlite for local development, postgresql for production (see .env.example)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & access
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  name         String
+  passwordHash String
+  role         String          @default("ADMIN") // ADMIN | ADMISSIONS | INSTRUCTOR
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  auditLogs    AuditLog[]
+  reviews      ResponseScore[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  metaJson  String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  group     String   @default("general")
+  label     String
+  type      String   @default("string") // number | boolean | string | select
+  options   String? // comma list for select
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Assessment configuration (versioned, immutable once published)
+// ---------------------------------------------------------------------------
+
+model AssessmentVersion {
+  id            String       @id @default(cuid())
+  versionName   String
+  versionNumber String // "1.0"
+  status        String       @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  notes         String?
+  createdAt     DateTime     @default(now())
+  publishedAt   DateTime?
+  sections      Section[]
+  assessments   Assessment[]
+  attempts      Attempt[]
+}
+
+model Assessment {
+  id                  String            @id @default(cuid())
+  token               String            @unique // public link slug
+  title               String
+  status              String            @default("ACTIVE") // ACTIVE | PAUSED | CLOSED
+  assessmentVersionId String
+  createdAt           DateTime          @default(now())
+  version             AssessmentVersion @relation(fields: [assessmentVersionId], references: [id])
+  attempts            Attempt[]
+}
+
+model Section {
+  id                  String            @id @default(cuid())
+  assessmentVersionId String
+  code                String // A .. I
+  name                String
+  description         String?
+  component           String // COGNITIVE | SIMULATION | BEHAVIOUR | INTEREST | MOTIVATION
+  weight              Float // section weight within its component (PRD section 6)
+  position            Int
+  version             AssessmentVersion @relation(fields: [assessmentVersionId], references: [id])
+  questions           Question[]
+}
+
+model Question {
+  id                  String               @id @default(cuid())
+  sectionId           String
+  position            Int
+  type                String // MULTIPLE_CHOICE | MULTIPLE_SELECT | LIKERT | SCENARIO | OPEN_ENDED | VISUAL | ORDERING
+  prompt              String
+  stimulus            String? // text/table stimulus shown above the prompt
+  stimulusSvg         String? // inline SVG markup for VISUAL questions (rendered as data URI)
+  difficulty          Int                  @default(2) // 1 Easy | 2 Moderate | 3 Hard
+  active              Boolean              @default(true)
+  itemsJson           String? // ORDERING: JSON [{id,text,correctPosition}]
+  requiresManualScore Boolean              @default(false) // open-ended rubric scoring
+  section             Section              @relation(fields: [sectionId], references: [id])
+  options             QuestionOption[]
+  competencies        QuestionCompetency[]
+  responses           Response[]
+  scores              ResponseScore[]
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  text       String
+  position   Int
+  isCorrect  Boolean  @default(false)
+  score      Int      @default(0) // SCENARIO 0..4, LIKERT 1..5
+  mapJson    String? // {"courses":{"data_analysis":100},"competencies":{"NR":1}}
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model Competency {
+  id               String                   @id @default(cuid())
+  code             String                   @unique // LR, NR, ...
+  name             String
+  description      String?
+  active           Boolean                  @default(true)
+  questionMappings QuestionCompetency[]
+  courseWeights    CourseCompetencyWeight[]
+  competencyScores CompetencyScore[]
+}
+
+model QuestionCompetency {
+  id           String     @id @default(cuid())
+  questionId   String
+  competencyId String
+  weight       Float      @default(1)
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  competency   Competency @relation(fields: [competencyId], references: [id])
+
+  @@unique([questionId, competencyId])
+}
+
+model Course {
+  id                     String                   @id @default(cuid())
+  courseCode             String                   @unique // backend_development
+  courseName             String
+  description            String?
+  careerFamily           String?
+  ctaUrl                 String? // course CTA destination (section 49)
+  progressionJson        String? // JSON [step, step, ...] recommended learning journey
+  active                 Boolean                  @default(true)
+  minimumScore           Float                    @default(65)
+  displayOrder           Int                      @default(0)
+  competencyWeights      CourseCompetencyWeight[]
+  courseScores           CourseScore[]
+  events                 AssessmentEvent[]
+  primaryRecommendations Recommendation[]
+}
+
+model CourseCompetencyWeight {
+  id           String     @id @default(cuid())
+  courseId     String
+  competencyId String
+  weight       Int        @default(0) // 0..5 scale (section 19)
+  course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  competency   Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, competencyId])
+}
+
+// ---------------------------------------------------------------------------
+// Candidate & attempt runtime data
+// ---------------------------------------------------------------------------
+
+model Candidate {
+  id              String    @id @default(cuid())
+  fullName        String
+  email           String
+  phone           String
+  educationLevel  String
+  occupation      String
+  ageRange        String?
+  techExposure    String?
+  hoursPerWeek    String?
+  preferredFormat String?
+  createdAt       DateTime  @default(now())
+  attempts        Attempt[]
+}
+
+model Attempt {
+  id                  String            @id @default(cuid())
+  token               String            @unique // secure resume/report token
+  candidateId         String
+  assessmentId        String
+  assessmentVersionId String
+  status              String            @default("IN_PROGRESS") // IN_PROGRESS | SUBMITTED | TIMED_OUT | ABANDONED
+  startTime           DateTime          @default(now())
+  submissionTime      DateTime?
+  durationSeconds     Int?
+  lastActivityAt      DateTime          @default(now())
+  questionOrderJson   String? // per-section randomized question order snapshot
+  optionOrderJson     String? // per-question randomized option order snapshot
+  itemOrderJson       String? // per-question randomized ordering-item snapshot
+  sectionStartsJson   String? // sectionId -> epoch ms (per-section timer mode)
+  currentQuestionId   String?
+  ipAddress           String?
+  userAgent           String?
+  flagsJson           String? // rapidCompletion / inactivity metadata
+  candidate           Candidate         @relation(fields: [candidateId], references: [id])
+  assessment          Assessment        @relation(fields: [assessmentId], references: [id])
+  version             AssessmentVersion @relation(fields: [assessmentVersionId], references: [id])
+  responses           Response[]
+  responseScores      ResponseScore[]
+  competencyScores    CompetencyScore[]
+  courseScores        CourseScore[]
+  recommendation      Recommendation?
+  report              AssessmentReport?
+  events              AssessmentEvent[]
+
+  @@unique([candidateId, assessmentId])
+}
+
+model Response {
+  id                String         @id @default(cuid())
+  attemptId         String
+  questionId        String
+  selectedOptionIds String? // JSON array of option/item ids (order matters for ORDERING)
+  textResponse      String?
+  timeSpentMs       Int            @default(0)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  attempt           Attempt        @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question          Question       @relation(fields: [questionId], references: [id])
+  score             ResponseScore?
+
+  @@unique([attemptId, questionId])
+}
+
+model ResponseScore {
+  id              String    @id @default(cuid())
+  responseId      String    @unique
+  attemptId       String
+  questionId      String
+  rawScore        Float // 0..100 before manual override
+  aiScore         Float? // 0..4 AI rubric suggestion (advisory until human review)
+  aiRationale     String?
+  aiConfidence    Float? // 0..1 model confidence in the suggestion
+  aiModel         String?
+  aiGeneratedAt   DateTime?
+  aiPromptVersion String?
+  humanScore      Float? // 0..4 rubric score
+  finalScore      Float // 0..100 persisted score; human-reviewed values feed the engine
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  response        Response  @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  attempt         Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question  @relation(fields: [questionId], references: [id])
+  reviewedBy      User?     @relation(fields: [reviewedById], references: [id])
+}
+
+model CompetencyScore {
+  id           String     @id @default(cuid())
+  attemptId    String
+  competencyId String
+  score        Float // 0..100
+  attempt      Attempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  competency   Competency @relation(fields: [competencyId], references: [id])
+
+  @@unique([attemptId, competencyId])
+}
+
+model CourseScore {
+  id        String  @id @default(cuid())
+  attemptId String
+  courseId  String
+  score     Float // 0..100 final combined score
+  rank      Int
+  fitJson   String? // per-component fits for the internal report
+  attempt   Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  course    Course  @relation(fields: [courseId], references: [id])
+
+  @@unique([attemptId, courseId])
+}
+
+model Recommendation {
+  id                 String   @id @default(cuid())
+  attemptId          String   @unique
+  primaryCourseId    String?
+  secondaryCourseIds String? // JSON [courseCode,...]
+  profileType        String // SINGLE | MULTI_PATH | EXPLORER
+  profileFamily      String?
+  confidence         String // HIGH | MODERATE | LOW
+  confidenceValue    Float?
+  explanationJson    String? // {reasons,strengths,interestNote,sharedStrengths}
+  createdAt          DateTime @default(now())
+  attempt            Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  primaryCourse      Course?  @relation(fields: [primaryCourseId], references: [id])
+}
+
+model AssessmentEvent {
+  id           String   @id @default(cuid())
+  type         String // CTA_CLICKED | RECOMMENDATION_ACCEPTED | ENROLLED | COMPLETED
+  attemptId    String?
+  courseId     String?
+  metadataJson String?
+  createdAt    DateTime @default(now())
+  attempt      Attempt? @relation(fields: [attemptId], references: [id], onDelete: SetNull)
+  course       Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([type, createdAt])
+  @@index([attemptId])
+  @@index([courseId])
+}
+
+model AssessmentReport {
+  id                  String   @id @default(cuid())
+  attemptId           String   @unique
+  overallScore        Float
+  completeness        Float
+  simulationScore     Float?
+  componentScoresJson String? // {COGNITIVE: 84, ...}
+  sectionScoresJson   String? // {sectionId: 82, ...}
+  generatedAt         DateTime @default(now())
+  attempt             Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+}
